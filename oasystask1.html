@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Assistant | AI-Powered Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f3f4f6;
+            --accent: #10b981;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --background: #ffffff;
+            --card-bg: #f9fafb;
+            --border: #e5e7eb;
+            --success: #059669;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
+
+        header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .voice-section {
+            background: var(--background);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .voice-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mic-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .mic-button:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .mic-button.listening {
+            background: var(--error);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .status {
+            text-align: center;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .status.active {
+            color: var(--success);
+        }
+
+        .transcript {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 100px;
+            margin-top: 10px;
+        }
+
+        .response {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 100px;
+            margin-top: 10px;
+        }
+
+        .capabilities {
+            background: var(--background);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .capability-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .capability-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .capability-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .capability-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
+
+        .capability-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .history {
+            grid-column: 1 / -1;
+            background: var(--background);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .history-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-query {
+            font-weight: 500;
+        }
+
+        .history-response {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .wave {
+            display: inline-block;
+            animation: wave 2s infinite;
+            transform-origin: 70% 70%;
+        }
+
+        @keyframes wave {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(14deg); }
+            20% { transform: rotate(-8deg); }
+            30% { transform: rotate(14deg); }
+            40% { transform: rotate(-4deg); }
+            50% { transform: rotate(10deg); }
+            60% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Advanced Voice Assistant <i class="fas fa-robot"></i></h1>
+            <p>Your AI-powered assistant for emails, reminders, weather, smart home control, and more</p>
+        </header>
+
+        <div class="main-content">
+            <div class="voice-section">
+                <h2 class="section-title"><i class="fas fa-microphone"></i> Voice Control</h2>
+                <div class="voice-controls">
+                    <button id="micButton" class="mic-button">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <p id="status" class="status">Click the microphone to start</p>
+                </div>
+
+                <div>
+                    <h3>Your Command:</h3>
+                    <div id="transcript" class="transcript">Your speech will appear here...</div>
+                </div>
+
+                <div>
+                    <h3>Assistant Response:</h3>
+                    <div id="response" class="response">Assistant responses will appear here...</div>
+                </div>
+            </div>
+
+            <div class="capabilities">
+                <h2 class="section-title"><i class="fas fa-star"></i> Capabilities</h2>
+                <div class="capabilities-grid">
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>Send Emails</h3>
+                        <p>"Send an email to John about the meeting tomorrow"</p>
+                    </div>
+
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3>Set Reminders</h3>
+                        <p>"Remind me to call mom at 5 PM"</p>
+                    </div>
+
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                        <h3>Weather Updates</h3>
+                        <p>"What's the weather in New York today?"</p>
+                    </div>
+
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>Smart Home Control</h3>
+                        <p>"Turn off the living room lights"</p>
+                    </div>
+
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3>General Knowledge</h3>
+                        <p>"Who was the first president of the US?"</p>
+                    </div>
+
+                    <div class="capability-card">
+                        <div class="capability-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <h3>Calendar Integration</h3>
+                        <p>"What's on my calendar for today?"</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history">
+                <h2 class="section-title"><i class="fas fa-history"></i> Recent Interactions</h2>
+                <div id="historyList" class="history-list">
+                    <div class="history-item">
+                        <div class="history-query">What can you do?</div>
+                        <div class="history-response">I can help with emails, reminders, weather, smart home control, and answer questions. Just ask!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Advanced Voice Assistant &copy; 2023 | Say <span class="wave">👋</span> to get started!</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const micButton = document.getElementById('micButton');
+            const status = document.getElementById('status');
+            const transcript = document.getElementById('transcript');
+            const response = document.getElementById('response');
+            const historyList = document.getElementById('historyList');
+            
+            let recognition;
+            let isListening = false;
+            
+            // Check if the browser supports the Web Speech API
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = function() {
+                    isListening = true;
+                    micButton.classList.add('listening');
+                    status.textContent = 'Listening...';
+                    status.classList.add('active');
+                };
+                
+                recognition.onresult = function(event) {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    
+                    transcript.innerHTML = finalTranscript || interimTranscript;
+                    
+                    if (finalTranscript) {
+                        processCommand(finalTranscript);
+                    }
+                };
+                
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error', event.error);
+                    response.innerHTML = `<span style="color: var(--error)">Error: ${event.error}</span>`;
+                    stopListening();
+                };
+                
+                recognition.onend = function() {
+                    stopListening();
+                };
+                
+            } else {
+                // Browser doesn't support speech recognition
+                micButton.disabled = true;
+                status.textContent = 'Speech recognition not supported in this browser';
+                response.innerHTML = '<span style="color: var(--error)">Your browser does not support speech recognition. Please try Chrome or Edge.</span>';
+            }
+            
+            micButton.addEventListener('click', function() {
+                if (isListening) {
+                    stopListening();
+                    recognition.stop();
+                } else {
+                    startListening();
+                }
+            });
+            
+            function startListening() {
+                try {
+                    recognition.start();
+                    transcript.textContent = 'Listening...';
+                    response.textContent = 'Processing...';
+                } catch (error) {
+                    console.error('Recognition start failed:', error);
+                    response.innerHTML = '<span style="color: var(--error)">Cannot start speech recognition</span>';
+                }
+            }
+            
+            function stopListening() {
+                isListening = false;
+                micButton.classList.remove('listening');
+                status.textContent = 'Click the microphone to start';
+                status.classList.remove('active');
+            }
+            
+            function processCommand(command) {
+                command = command.toLowerCase().trim();
+                let assistantResponse = '';
+                
+                // Process different command types
+                if (command.includes('email') || command.includes('send')) {
+                    assistantResponse = `I'll send that email to ${extractEmailRecipient(command)} about "${extractEmailSubject(command)}".`;
+                } else if (command.includes('remind') || command.includes('reminder')) {
+                    assistantResponse = `I've set a reminder for ${extractTime(command)} to "${extractReminderText(command)}".`;
+                } else if (command.includes('weather')) {
+                    assistantResponse = `The weather in ${extractLocation(command) || 'your location'} is sunny with a high of 75°F.`;
+                } else if (command.includes('light') || command.includes('lamp')) {
+                    if (command.includes('on') || command.includes('turn on')) {
+                        assistantResponse = "Turning on the living room lights.";
+                    } else if (command.includes('off') || command.includes('turn off')) {
+                        assistantResponse = "Turning off the living room lights.";
+                    } else {
+                        assistantResponse = "I can control your lights. Try saying 'turn on the lights' or 'turn off the lights'.";
+                    }
+                } else if (command.includes('what can you do') || command.includes('help')) {
+                    assistantResponse = "I can help you send emails, set reminders, check weather, control smart home devices, and answer questions. Just ask!";
+                } else {
+                    assistantResponse = "I'm not sure how to help with that. Try asking me to send an email, set a reminder, or check the weather.";
+                }
+                
+                // Update response
+                response.textContent = assistantResponse;
+                
+                // Add to history
+                addToHistory(command, assistantResponse);
+            }
+            
+            function extractEmailRecipient(command) {
+                // Simple extraction logic - in a real app, this would be more sophisticated
+                if (command.includes('john')) return 'John';
+                if (command.includes('mary')) return 'Mary';
+                if (command.includes('team')) return 'the team';
+                return 'your contact';
+            }
+            
+            function extractEmailSubject(command) {
+                if (command.includes('meeting')) return 'the meeting';
+                if (command.includes('project')) return 'the project update';
+                if (command.includes('report')) return 'the report';
+                return 'your message';
+            }
+            
+            function extractTime(command) {
+                if (command.includes('5 pm') || command.includes('5pm')) return '5 PM';
+                if (command.includes('tomorrow')) return 'tomorrow';
+                if (command.includes('next week')) return 'next week';
+                return 'later';
+            }
+            
+            function extractReminderText(command) {
+                if (command.includes('call')) return 'make that phone call';
+                if (command.includes('buy')) return 'go shopping';
+                if (command.includes('meeting')) return 'attend the meeting';
+                return 'complete your task';
+            }
+            
+            function extractLocation(command) {
+                if (command.includes('new york')) return 'New York';
+                if (command.includes('london')) return 'London';
+                if (command.includes('tokyo')) return 'Tokyo';
+                return null;
+            }
+            
+            function addToHistory(query, response) {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-query">${query}</div>
+                    <div class="history-response">${response}</div>
+                `;
+                
+                historyList.insertBefore(historyItem, historyList.firstChild);
+                
+                // Limit history to 5 items
+                if (historyList.children.length > 5) {
+                    historyList.removeChild(historyList.lastChild);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
